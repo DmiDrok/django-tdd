@@ -6,25 +6,12 @@
     </head>
 
     <body>
-        <h1>Мой To-Do</h1>
+        <h1>Начни свой To-Do лист!</h1>
 
-        <form action="" method="POST">
+        <form action="/lists/new" method="POST">
             {% csrf_token %}
-
-            <input class="add_new_item_inp" name="new_item" placeholder="Название задачи">
-            <br>
-            <br>
+            <input type="text" class="add_new_item_inp" name="new_item" placeholder="Введи задачу">
             <button type="submit">Добавить</button>
         </form>
-
-        <hr>
-
-        <div class="block_new_items">
-            <ul>
-                {% for item in all_items %}
-                    <li class="item">{{ forloop.counter }}. {{ item.text }}</li>
-                {% endfor %}
-            </ul>
-        </div>
     </body>
 </html>
