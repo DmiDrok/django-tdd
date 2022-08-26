@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    <link rel="stylesheet" href="/static/todo/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/todo/base.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-md-4 jumbotron">
+                <h1>{% block header %}{% endblock %}</h1>
+
+                <div class="row">
+                    <div class="col-md-10 offset-md-1 jumbotron">
+                        <form action="{% block action_url %}{% endblock %}" method="POST">
+                            {% csrf_token %}
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="text" class="add_new_item_inp form-control input-lg" name="new_item" placeholder="Введи задачу">
+                                    </div>
+                        
+                                    <div class="col-md-6">
+                                        <button type="submit">Добавить</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        {% block content %}
+                        {% endblock %}
+                    </div>
+                </div>
+
+                {% if error %}
+                    <h2 class="has_error">{{ error }}</h2>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

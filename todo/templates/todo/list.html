@@ -1,29 +1,23 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Мой список дел To-Do</title>
-</head>
-<body>
-    <h1>Добавьте задачу в To-Do список:</h1>
-    <form action="{% url 'add_item' list_id=list.id %}" method="POST">
-        {% csrf_token %}
-        <input type="text" class="add_new_item_inp" name="new_item" placeholder="Название задачи">   
-        <button type="submit">Добавить</button>
-    </form>
+{% extends 'todo/base.html' %}
 
-    <br>
-    <hr>
-    <br>
+{% block title %}
+Список задач To-Do
+{% endblock %}
 
-    <h2>Все задачи To-Do:</h2>
+{% block header %}
+Введи новую задачу
+{% endblock %}
 
-    <div class="block_all_items">
-        <ul>
-            {% for item in list.item_set.all %}
-                <li class="item">{{ forloop.counter }}. {{ item.text }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-</body>
-</html>
+{% block action_url %}
+    {% url 'lists' list.id %}
+{% endblock %}
+
+{% block content %}
+<div class="block_all_items">
+    <ul>
+        {% for item in list.item_set.all %}
+            <li class="item">{{ forloop.counter }}. {{ item.text }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

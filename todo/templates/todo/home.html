@@ -1,17 +1,14 @@
-<!doctype html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <title>Мой To-Do</title>
-    </head>
+{% extends 'todo/base.html' %}
 
-    <body>
-        <h1>Начни свой To-Do лист!</h1>
+{% block title %}
+    Задачи To-Do
+{% endblock %}
 
-        <form action="/lists/new" method="POST">
-            {% csrf_token %}
-            <input type="text" class="add_new_item_inp" name="new_item" placeholder="Введи задачу">
-            <button type="submit">Добавить</button>
-        </form>
-    </body>
-</html>
+{% block header %}
+Начни свой To-Do лист!
+{% endblock %}
+
+{% block action_url %}
+    {% url 'home' %}
+{% endblock %}
+
