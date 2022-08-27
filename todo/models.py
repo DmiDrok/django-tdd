@@ -6,6 +6,12 @@ class Item(models.Model):
     text = models.CharField(max_length=255, blank=False, null=True)
     list = models.ForeignKey(to='List', on_delete=models.CASCADE, default=None)
 
+    class Meta:
+        ordering = ['id']
+        unique_together = ['text', 'list']
+
+    def __str__(self):
+        return self.text
 
 class List(models.Model):
     

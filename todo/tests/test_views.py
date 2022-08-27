@@ -3,22 +3,23 @@ from django.urls import reverse, resolve
 
 from ..models import List, Item
 from ..views import home_view
+from ..forms import EMPTY_ITEM_ERROR, DUPLICATE_ITEM_ERRORS, ItemForm, ExistingListItemForm
 
 
 class NewItemTest(TestCase):
     def test_redirect_after_post_request(self):
-        response = self.client.post(reverse('home'), data={'new_item': 'Новая задача'})
+        response = self.client.post(reverse('home'), data={'text': 'Новая задача'})
         list_ = List.objects.first()
         self.assertRedirects(response, reverse('lists', kwargs={'list_id': list_.pk}))
 
     def test_can_save_after_post_request(self):
-        response = self.client.post(reverse('home'), data={'new_item': 'Задача 1'})
+        response = self.client.post(reverse('home'), data={'text': 'Задача 1'})
         self.assertEqual(Item.objects.count(), 1)
 
     def test_can_assign_with_exist_list(self):
         list_ = List.objects.create()
 
-        response = self.client.post(reverse('lists', kwargs={'list_id': list_.pk}), data={'new_item': 'Помыть кота'})
+        response = self.client.post(reverse('lists', kwargs={'list_id': list_.pk}), data={'text': 'Помыть кота'})
         item = Item.objects.get(list=list_)
 
         self.assertEqual(item.text, 'Помыть кота')
@@ -26,28 +27,27 @@ class NewItemTest(TestCase):
 
     def test_redirects_after_add_in_exist_list(self):
         current_list = List.objects.create()
-        response = self.client.post(reverse('lists', kwargs={'list_id': current_list.pk}), data={'new_item': 'Новая задачка'})
+        response = self.client.post(reverse('lists', kwargs={'list_id': current_list.pk}), data={'text': 'Новая задачка'})
 
         self.assertRedirects(response, reverse('lists', kwargs={'list_id': current_list.pk}))
 
     def test_error_on_empty_item(self):
-        response = self.client.post(reverse('home'), data={'new_item': ''})
+        response = self.client.post(reverse('home'), data={'text': ''})
         self.assertEqual(response.status_code, 200)
-
-        expected_error = 'Введите задание. Запрещено вводить пустую строку.'
-        self.assertContains(response, expected_error)
 
     def test_error_on_empty_item_add_in_exist_list(self):
         list_ = List.objects.create()
-        response = self.client.post(reverse('lists', kwargs={'list_id': list_.pk}), data={'new_item': ''})
+        response = self.client.post(reverse('lists', kwargs={'list_id': list_.pk}), data={'text': ''})
         self.assertEqual(response.status_code, 200)
-        
-        expected_error = 'Введите задание. Запрещено вводить пустую строку.'
-        self.assertContains(response, expected_error)
 
+        self.assertIsInstance(response.context['form'], ExistingListItemForm)
+
+    def test_correct_form_is_using_in_home_page(self):
+        response = self.client.get(reverse('home'))
+        self.assertIsInstance(response.context['form'], ExistingListItemForm)
 
     def test_empty_item_not_add_in_db(self):
-        response = self.client.post(reverse('home'), data={'new_item': ''})
+        response = self.client.post(reverse('home'), data={'text': ''})
 
         self.assertEqual(List.objects.count(), 0)
         self.assertEqual(Item.objects.count(), 0)

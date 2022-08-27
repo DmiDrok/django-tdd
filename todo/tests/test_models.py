@@ -6,20 +6,14 @@ from todo.models import Item, List
 
 
 class ListsItemModelTest(TestCase):
-    def test_save_and_assign_both(self):
-        list_ = List()
-        list_.save()
+    def test_item_is_related_to_list(self):
+        list_ = List.objects.create()
+        item1 = Item.objects.create(text='Задача 1', list=list_)
+        item2 = Item.objects.create(text='Задача 2', list=list_)
+        item3 = Item.objects.create(text='Задача 3', list=list_)
 
-        item1 = Item(text='Задача 1')
-        item2 = Item(text='Задача 2')
+        self.assertIn(item1, list_.item_set.all())
 
-        item1.list = list_
-        item2.list = list_
-        item1.save()
-        item2.save()
-
-        self.assertEqual(item1.list, list_)
-        self.assertEqual(item2.list, list_)
     
     def test_cannot_save_empty_item(self):
         list_ = List.objects.create()
@@ -32,3 +26,11 @@ class ListsItemModelTest(TestCase):
     def test_get_absolute_url(self):
         list_ = List.objects.create()
         self.assertEqual(list_.get_absolute_url(), reverse('lists', kwargs={'list_id': list_.pk}))
+
+    def test_cannot_add_duplicate_items(self):
+        list_ = List.objects.create()
+        item_first = Item.objects.create(text='Задача 1', list=list_)
+
+        with self.assertRaises(ValidationError):
+            item_second = Item(text='Задача 1', list=list_)
+            item_second.full_clean()

@@ -4,38 +4,28 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 
 from todo.models import Item, List
+from todo.forms import ExistingListItemForm, ItemForm
 
 
 def home_view(request):
-    error = None
-
-    if request.method == 'POST':
+    form = ExistingListItemForm(request.POST)
+    if form.is_valid():
         list_ = List.objects.create()
-        try:
-            item = Item.objects.create(text=request.POST['new_item'], list=list_)
-            item.full_clean()
+        form.save(for_list=list_)
 
-            return redirect(list_)
-        except ValidationError:
-            list_.delete()
-            error = 'Введите задание. Запрещено вводить пустую строку.'
-
-    return render(request, 'todo/home.html', {'error': error})
+        return redirect(list_)
+    
+    return render(request, 'todo/home.html', {'form': form})
 
 
 def list_view(request, list_id):
-    list_ = List.objects.get(id=list_id)
-    error = None
+    list_ = List.objects.get(pk=list_id)
+    form = ExistingListItemForm()
 
     if request.method == 'POST':
-        try:
-            item = Item(text=request.POST['new_item'], list=list_)
-            item.full_clean()
-            item.save()
-
+        form = ExistingListItemForm(request.POST)
+        if form.is_valid():
+            form.save(for_list=list_)
             return redirect(list_)
-        except ValidationError:
-            error = 'Введите задание. Запрещено вводить пустую строку.'
 
-
-    return render(request, 'todo/list.html', {'list': list_, 'error': error})
+    return render(request, 'todo/list.html', {'list': list_, 'form': form})
